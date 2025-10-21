@@ -13,6 +13,7 @@ class chip8 {
 		const static int registerSize = 16;
 		const static int memorySize = 4096;
 		const static int gfxSize = 64 * 32;
+		const static int bufferSize = 255;
 
 		unsigned short opcode;
 
@@ -59,12 +60,25 @@ class chip8 {
 			// Reset timers
 		}
 
-		void loadGame(std::string name) {
-			// Get data from the file
+		void loadGame(const char * name) {
+			FILE* pF = fopen(name, "rb");
 
-			for (int i = 0; i < bufferSize; ++i) {
-				memory[i + 512] = buffer[i];
+			// Buffer to hold 1 line of our file at a time
+			char buffer[bufferSize];
+
+			if (pF == NULL) {
+				printf("Unable to open file!\n");
 			}
+			else {
+				// fgets returns NULL when there's nothing left to read
+				while (fgets(buffer, bufferSize, pF) != NULL) {
+					for (int i = 0; i < bufferSize; ++i) {
+						memory[i + 512] = buffer[i];
+					}
+				}
+			}
+
+			fclose(pF);
 		}
 
 		void emulateCycle() {
